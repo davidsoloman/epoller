@@ -1,5 +1,5 @@
 /*
- * @author Julian PeÃ±a - julian.orlando.pena@gmail.com
+ * @author Julian Peña - julian.orlando.pena@gmail.com
  */
 
 package pojos;

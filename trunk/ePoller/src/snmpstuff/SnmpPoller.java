@@ -1,5 +1,5 @@
 /*
- * @author Julian PeÃ±a - julian.orlando.pena@gmail.com
+ * @author Julian Peña - julian.orlando.pena@gmail.com
  */
 
 package snmpstuff;
@@ -42,8 +42,6 @@ public class SnmpPoller {
 	private Device currentDevice;
 	private Parameter currentParameter;
 
-	private boolean busyFlag;
-
 	@SuppressWarnings("rawtypes")
 	private TransportMapping transport;
 
@@ -73,7 +71,6 @@ public class SnmpPoller {
 	}
 
 	public void setDevice(Device newDevice) {
-		busyFlag = true;
 		currentDevice = newDevice;
 		addr.setValue(currentDevice.getIp() + "/161");
 	}
@@ -125,14 +122,6 @@ public class SnmpPoller {
 		}
 
 		return plainTextResult;
-	}
-
-	public void release() {
-		busyFlag = false;
-	}
-
-	public boolean isBusy() {
-		return busyFlag;
 	}
 
 	public static String getCurrentDate() {
