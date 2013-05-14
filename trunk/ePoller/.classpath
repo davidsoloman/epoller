@@ -4,7 +4,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="lib" path="libs/snmp4j-2.1.0.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="file:/C:/Users/Julian/workspaces/libs/snmp4j-2.1.0/snmp4j/doc/"/>
+			<attribute name="javadoc_location" value="jar:file:/home/julian/workspace/libraries/snmp4j-2.1.0/dist/snmp4j-2.1.0-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="libs/myopencsv.jar"/>
