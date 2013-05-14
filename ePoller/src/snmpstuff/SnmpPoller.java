@@ -1,5 +1,5 @@
 /*
- * @author Julian Peña - julian.orlando.pena@gmail.com
+ * @author Julian Peï¿½a - julian.orlando.pena@gmail.com
  */
 
 package snmpstuff;
@@ -46,7 +46,7 @@ public class SnmpPoller {
 	private TransportMapping transport;
 
 	public void setup() throws IOException {
-		
+
 		Properties properties = new Properties();
 		properties.load(new FileInputStream(Launcher.path + "configuration.properties"));
 
@@ -80,14 +80,14 @@ public class SnmpPoller {
 	}
 
 	public String doSingleRequest() {
-		
+
 		String plainTextResult = null;
 
 		pdu.clear();
 		pdu.add(new VariableBinding(new OID(currentParameter.getOid())));
-		
+
 		long responseTime = System.currentTimeMillis();
-		
+
 		try {
 			response = snmp.send(pdu, target);
 			responseTime = System.currentTimeMillis() - responseTime;
@@ -113,10 +113,10 @@ public class SnmpPoller {
 				logger.printlnToFile(LOG_FILE, getCurrentDate() + "," + "NETWORK ERROR: Request: " + pdu.toString() + " Device: " + currentDevice + " Time:" + responseTime);
 
 			if (plainTextResult == null)
-				plainTextResult = "," +  responseTime;
+				plainTextResult = "," + responseTime;
 
 		} catch (IOException e) {
-			//TODO redirect this stacktrace to another log file or similar
+			// TODO redirect this stacktrace to another log file or similar
 			e.printStackTrace();
 			plainTextResult = "," + (System.currentTimeMillis() - responseTime);
 		}

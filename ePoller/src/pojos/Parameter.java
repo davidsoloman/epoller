@@ -1,13 +1,13 @@
 /*
- * @author Julian Peña - julian.orlando.pena@gmail.com
+ * @author Julian Peï¿½a - julian.orlando.pena@gmail.com
  */
 
 package pojos;
 
 public class Parameter {
-	
+
 	private String name, oid;
-	
+
 	public Parameter() {
 	}
 
@@ -26,10 +26,10 @@ public class Parameter {
 	public void setOid(String oid) {
 		this.oid = oid;
 	}
-	
+
 	@Override
 	public String toString() {
-		return name+","+oid;
+		return name + "," + oid;
 	}
 
 }

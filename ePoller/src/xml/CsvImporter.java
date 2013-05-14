@@ -28,8 +28,7 @@ public class CsvImporter {
 		return devices;
 	}
 
-	public static ArrayList<Parameter> getParameters(String url)
-			throws IOException {
+	public static ArrayList<Parameter> getParameters(String url) throws IOException {
 		ArrayList<Parameter> parameters = new ArrayList<Parameter>();
 		CSVReader reader = new CSVReader(new FileReader(url), ',', '\"', 0);
 		String[] nextLine;
