@@ -46,5 +46,5 @@ public class SnmpPollerFactory extends BasePoolableObjectFactory<SnmpPoller> {
 		return super.validateObject(obj);
 	}
 	
-	public static final String POOL_LOG="pool_log";
+	public static final String POOL_LOG="pool.log";
 }
