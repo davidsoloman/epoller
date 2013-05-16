@@ -1,5 +1,5 @@
 /*
- * @author Julian Pe�a - julian.orlando.pena@gmail.com
+ * @author Julian Peña - julian.orlando.pena@gmail.com
  */
 
 package snmpstuff;
@@ -8,8 +8,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Properties;
-
-import main.Launcher;
 
 import org.snmp4j.CommunityTarget;
 import org.snmp4j.PDU;
@@ -37,8 +35,6 @@ public class SnmpPoller {
 	private PDU pdu;
 	private Snmp snmp;
 
-	private static TextFileLogger logger;
-
 	private Device currentDevice;
 	private Parameter currentParameter;
 
@@ -48,9 +44,7 @@ public class SnmpPoller {
 	public void setup() throws IOException {
 
 		Properties properties = new Properties();
-		properties.load(new FileInputStream(Launcher.path + "configuration.properties"));
-
-		logger = new TextFileLogger();
+		properties.load(new FileInputStream("configuration.properties"));
 
 		addr = new UdpAddress("127.0.0.1/161");
 
@@ -104,13 +98,13 @@ public class SnmpPoller {
 							plainTextResult = plainTextResult.substring(len + 1, plainTextResult.length());
 							plainTextResult = plainTextResult.trim() + "," + responseTime;
 						} else
-							logger.printlnToFile(LOG_FILE, getCurrentDate() + "," + "BAD RESPONSE: " + rawResponse.toString() + " Request: " + pdu.toString() + " Device: " + currentDevice + " Time:" + responseTime);
+							TextFileLogger.printlnToFile(LOG_FILE, getCurrentDate() + "," + "BAD RESPONSE: " + rawResponse.toString() + " Request: " + pdu.toString() + " Device: " + currentDevice + " Time:" + responseTime);
 					} else
-						logger.printlnToFile(LOG_FILE, getCurrentDate() + "," + "BAD RESPONSE: " + rawResponse.toString() + " Request: " + pdu.toString() + " Device: " + currentDevice + " Time:" + responseTime);
+						TextFileLogger.printlnToFile(LOG_FILE, getCurrentDate() + "," + "BAD RESPONSE: " + rawResponse.toString() + " Request: " + pdu.toString() + " Device: " + currentDevice + " Time:" + responseTime);
 				} else
-					logger.printlnToFile(LOG_FILE, getCurrentDate() + "," + "TIMEOUT: Request: " + pdu.toString() + " Device: " + currentDevice + " Time:" + responseTime);
+					TextFileLogger.printlnToFile(LOG_FILE, getCurrentDate() + "," + "TIMEOUT: Request: " + pdu.toString() + " Device: " + currentDevice + " Time:" + responseTime);
 			} else
-				logger.printlnToFile(LOG_FILE, getCurrentDate() + "," + "NETWORK ERROR: Request: " + pdu.toString() + " Device: " + currentDevice + " Time:" + responseTime);
+				TextFileLogger.printlnToFile(LOG_FILE, getCurrentDate() + "," + "NETWORK ERROR: Request: " + pdu.toString() + " Device: " + currentDevice + " Time:" + responseTime);
 
 			if (plainTextResult == null)
 				plainTextResult = "," + responseTime;

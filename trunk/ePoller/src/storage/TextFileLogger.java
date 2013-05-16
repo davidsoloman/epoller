@@ -14,10 +14,10 @@ import pojos.Device;
 
 public class TextFileLogger {
 
-	public TextFileLogger() {
+	private TextFileLogger() {
 	}
 
-	public void initOutputFiles(ArrayList<Device> devices, ArrayList<Parameter> params) throws IOException {
+	public static void initOutputFiles(ArrayList<Device> devices, ArrayList<Parameter> params) throws IOException {
 		File outputFile = new File("data");
 		RandomAccessFile emptyRandomAccessFile;
 
@@ -39,9 +39,15 @@ public class TextFileLogger {
 		}
 	}
 
-	public synchronized void printlnToFile(String file, String value) {
+	public static synchronized void printlnToFile(String file, String value) {
 		try {
-			RandomAccessFile randomAccessFile = new RandomAccessFile(new File("data/" + file + ".csv"), "rw");
+			
+			if(!file.endsWith(".log"))
+				file=file+".csv";
+			else
+				file="data/" + file;
+				
+			RandomAccessFile randomAccessFile = new RandomAccessFile(new File(file), "rw");
 			randomAccessFile.seek(randomAccessFile.length());
 			randomAccessFile.writeBytes(value + "\n");
 			randomAccessFile.close();
