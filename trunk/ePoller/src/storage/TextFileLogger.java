@@ -43,9 +43,7 @@ public class TextFileLogger {
 		try {
 			
 			if(!file.endsWith(".log"))
-				file=file+".csv";
-			else
-				file="data/" + file;
+				file="data/" +file+".csv";
 				
 			RandomAccessFile randomAccessFile = new RandomAccessFile(new File(file), "rw");
 			randomAccessFile.seek(randomAccessFile.length());
