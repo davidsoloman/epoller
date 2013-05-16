@@ -128,5 +128,5 @@ public class SnmpPoller {
 	}
 
 	// Constants
-	private final String LOG_FILE = "log";
+	private final String LOG_FILE = "general.log";
 }
