@@ -12,14 +12,11 @@ import java.util.Properties;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.pool.ObjectPool;
-import org.apache.commons.pool.impl.StackObjectPool;
-
 import pojos.Parameter;
 import pojos.Device;
+import snmpstuff.SnmpCollector;
 import snmpstuff.SnmpPoller;
-import snmpstuff.SnmpPollerFactory;
-import snmpstuff.SnmpTrapReceiver;
+
 import storage.TextFileLogger;
 
 import xml.CsvImporter;
@@ -48,9 +45,7 @@ public class Launcher {
 				TextFileLogger.initOutputFiles(devices, parameters);
 				System.out.println("done.");
 
-				System.out.print("Setting up the pollers pool ... ");
-				pool = new StackObjectPool<SnmpPoller>(new SnmpPollerFactory());
-				System.out.println("done.");
+				snmpPoller= new SnmpCollector();
 
 				System.out.print("Scheduling the queries ... ");
 
@@ -64,10 +59,10 @@ public class Launcher {
 				}
 				System.out.println("ePoller started succesfully.");
 				
-				System.out.println("Starting trap receiver ...");
+				/*System.out.println("Starting trap receiver ...");
 				SnmpTrapReceiver multithreadedtrapreceiver = new SnmpTrapReceiver();
 				multithreadedtrapreceiver.run();
-				System.out.println("Done.");
+				System.out.println("Done.");*/
 				
 			}
 		} catch (IOException e) {
@@ -79,7 +74,6 @@ public class Launcher {
 
 	private static class customTimerTask implements Runnable {
 
-		private SnmpPoller snmpPoller;
 		private int device;
 		private String aux;
 
@@ -91,13 +85,7 @@ public class Launcher {
 		public void run() {
 
 			try {
-				snmpPoller = pool.borrowObject();
-				TextFileLogger.printlnToFile(SnmpPollerFactory.POOL_LOG, SnmpPoller.getCurrentDate()+", active objects in pool: "+pool.getNumActive());
-				TextFileLogger.printlnToFile(SnmpPollerFactory.POOL_LOG, SnmpPoller.getCurrentDate()+", idle objects in pool: "+pool.getNumIdle());
 				snmpPoller.setDevice(devices.get(device));
-
-				snmpPoller.setParameter(parameters.get(0));
-
 				aux = SnmpPoller.getCurrentDate() + ",";
 
 				for (int j = 0; j < parameters.size(); j++) {
@@ -105,7 +93,6 @@ public class Launcher {
 					aux = aux + snmpPoller.doSingleRequest() + ",";
 				}
 
-				pool.returnObject(snmpPoller);
 				TextFileLogger.printlnToFile(devices.get(device).toString(), aux.substring(0, aux.length() - 1));
 			} catch (NoSuchElementException e) {
 				e.printStackTrace();
@@ -116,8 +103,8 @@ public class Launcher {
 			}
 		}
 	}
-
-	private static ObjectPool<SnmpPoller> pool;
+	
+	private static SnmpCollector snmpPoller;
 
 	private static ArrayList<Device> devices;
 	private static ArrayList<Parameter> parameters;

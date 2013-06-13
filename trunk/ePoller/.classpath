@@ -8,6 +8,10 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="libs/myopencsv.jar"/>
-	<classpathentry kind="lib" path="libs/commons-pool-1.6.jar"/>
+	<classpathentry kind="lib" path="libs/commons-pool-1.6.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/home/julian/workspace/libraries/commons-pool-1.6/commons-pool-1.6-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
