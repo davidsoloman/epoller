@@ -107,7 +107,7 @@ public class SnmpPoller {
 				TextFileLogger.printlnToFile(LOG_FILE, getCurrentDate() + "," + "NETWORK ERROR: Request: " + pdu.toString() + " Device: " + currentDevice + " Time:" + responseTime);
 
 			if (plainTextResult == null)
-				plainTextResult = "-," + responseTime;	//The dash is for gnuplot
+				plainTextResult = "," + responseTime;
 
 		} catch (IOException e) {
 			// TODO redirect this stacktrace to another log file or similar
