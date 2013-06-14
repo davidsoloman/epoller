@@ -8,23 +8,24 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import pojos.Parameter;
-import pojos.Device;
 
 public class TextFileLogger {
 
 	private TextFileLogger() {
 	}
-
-	public static void initOutputFiles(ArrayList<Device> devices, ArrayList<Parameter> params) throws IOException {
+	
+	public static void initOutputFiles(HashMap<String, String> devices, ArrayList<Parameter> params) throws IOException {
 		File outputFile = new File("data");
 		RandomAccessFile emptyRandomAccessFile;
 
 		outputFile.mkdir();
 
-		for (int i = 0; i < devices.size(); i++) {
-			outputFile = new File("data/" + devices.get(i).toString() + ".csv");
+		for(String deviceName: devices.values())
+		{
+			outputFile = new File("data/" + deviceName + ".csv");
 			if (!outputFile.exists()) {
 				emptyRandomAccessFile = new RandomAccessFile(outputFile, "rw");
 

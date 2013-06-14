@@ -7,23 +7,20 @@ package xml;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import au.com.bytecode.opencsv.CSVReader;
 
 import pojos.Parameter;
-import pojos.Device;
 
 public class CsvImporter {
-
-	public static ArrayList<Device> getDevices(String url) throws IOException {
-		ArrayList<Device> devices = new ArrayList<Device>();
+	
+	public static HashMap<String, String> getDevices2(String url) throws IOException {
+		HashMap<String, String> devices = new HashMap<String, String>();
 		CSVReader reader = new CSVReader(new FileReader(url), ',', '\"', 0);
 		String[] nextLine;
 		while ((nextLine = reader.readNext()) != null) {
-			Device aux = new Device();
-			aux.setIp(nextLine[0]);
-			aux.setName(nextLine[1]);
-			devices.add(aux);
+			devices.put(nextLine[0], nextLine[1]);	// O -> IP , 1 -> Device Name 
 		}
 		return devices;
 	}
