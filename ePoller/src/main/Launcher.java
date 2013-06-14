@@ -7,15 +7,14 @@ package main;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import pojos.Parameter;
-import pojos.Device;
 import snmpstuff.SnmpCollector;
-import snmpstuff.SnmpPoller;
 
 import storage.TextFileLogger;
 
@@ -26,37 +25,44 @@ public class Launcher {
 	public static void main(String[] args) {
 
 		try {
+			
 			Properties properties = new Properties();
 			properties.load(new FileInputStream("configuration.properties"));
 
+			
 			System.out.println("Reading devices file ... ");
-			devices = CsvImporter.getDevices("devices.csv");
+			devices = CsvImporter.getDevices2("devices.csv");
 			System.out.println("done. " + devices.size() + " devices found.");
+			
+			
 			System.out.print("Reading parameters file ... ");
 			parameters = CsvImporter.getParameters("parameters.csv");
 			System.out.println("done. " + parameters.size() + " parameters found.");
+			
 
 			if (devices.size() < 1 || parameters.size() < 1) {
-				System.out.println("For this programan to work, you need at least one parameter and one device.");
-				System.out.println("Bye.");
+				System.out.println("For this programan to work, you need at least one parameter and one device. Bye.");
 				System.exit(0);
 			} else {
 				System.out.print("Initializing output files ... ");
 				TextFileLogger.initOutputFiles(devices, parameters);
 				System.out.println("done.");
 
-				snmpPoller= new SnmpCollector();
+				snmpCollector= new SnmpCollector();
 
 				System.out.print("Scheduling the queries ... ");
 
 				long frequency = Long.parseLong(properties.getProperty("frequency"));
-				ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(20);
+				ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(8);
 				int counter = 1;
 				int request_interval = Integer.parseInt(properties.getProperty("request_interval"));
-				for (int i = 0; i < devices.size(); i++) {
-					executor.scheduleAtFixedRate(new customTimerTask(i), counter * request_interval, frequency, TimeUnit.MILLISECONDS);
+				
+				for(String ip: devices.keySet())
+				{
+					executor.scheduleAtFixedRate(new customTimerTask(ip), counter * request_interval, frequency, TimeUnit.MILLISECONDS);
 					counter++;
 				}
+				
 				System.out.println("ePoller started succesfully.");
 				
 				/*System.out.println("Starting trap receiver ...");
@@ -74,26 +80,26 @@ public class Launcher {
 
 	private static class customTimerTask implements Runnable {
 
-		private int device;
+		private String ip;
 		private String aux;
 
-		public customTimerTask(int currentDevice) {
-			device = currentDevice;
+		public customTimerTask(String device) {
+			ip = device;
 		}
 
 		@Override
 		public void run() {
 
 			try {
-				snmpPoller.setDevice(devices.get(device));
-				aux = SnmpPoller.getCurrentDate() + ",";
+				snmpCollector.setDevice(ip);
+				aux = SnmpCollector.getCurrentDate() + ",";
 
 				for (int j = 0; j < parameters.size(); j++) {
-					snmpPoller.setParameter(parameters.get(j));
-					aux = aux + snmpPoller.doSingleRequest() + ",";
+					snmpCollector.setParameter(parameters.get(j));
+					aux = aux + snmpCollector.doSingleRequest() + ",";
 				}
 
-				TextFileLogger.printlnToFile(devices.get(device).toString(), aux.substring(0, aux.length() - 1));
+				TextFileLogger.printlnToFile(devices.get(ip).toString(), aux.substring(0, aux.length() - 1));
 			} catch (NoSuchElementException e) {
 				e.printStackTrace();
 			} catch (IllegalStateException e) {
@@ -104,8 +110,8 @@ public class Launcher {
 		}
 	}
 	
-	private static SnmpCollector snmpPoller;
+	private static SnmpCollector snmpCollector;
 
-	private static ArrayList<Device> devices;
+	private static HashMap<String, String> devices;
 	private static ArrayList<Parameter> parameters;
 }

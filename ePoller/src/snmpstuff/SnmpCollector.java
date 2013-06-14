@@ -14,6 +14,9 @@ import org.snmp4j.PDU;
 import org.snmp4j.Snmp;
 import org.snmp4j.TransportMapping;
 import org.snmp4j.event.ResponseEvent;
+import org.snmp4j.mp.MPv2c;
+import org.snmp4j.mp.PduHandle;
+import org.snmp4j.mp.PduHandleCallback;
 import org.snmp4j.mp.SnmpConstants;
 import org.snmp4j.smi.Address;
 import org.snmp4j.smi.OID;
@@ -24,7 +27,6 @@ import org.snmp4j.transport.DefaultUdpTransportMapping;
 import org.snmp4j.util.MultiThreadedMessageDispatcher;
 import org.snmp4j.util.ThreadPool;
 
-import pojos.Device;
 import pojos.Parameter;
 import storage.TextFileLogger;
 
@@ -42,7 +44,7 @@ public class SnmpCollector {
 	private ThreadPool threadPool;
 	private MultiThreadedMessageDispatcher dispatcher;
 
-	private Device currentDevice;
+	private String deviceIP;
 	private Parameter currentParameter;
 
 	public SnmpCollector() throws FileNotFoundException, IOException {
@@ -52,6 +54,7 @@ public class SnmpCollector {
 
 		threadPool = ThreadPool.create("getsender", Integer.parseInt(properties.getProperty("pool_size")));
 		dispatcher = new MultiThreadedMessageDispatcher(threadPool, new MessageDispatcherImpl());
+		dispatcher.addMessageProcessingModel(new MPv2c());
 
 		addr = new UdpAddress("127.0.0.1/161");
 
@@ -69,7 +72,8 @@ public class SnmpCollector {
 
 		snmp = new Snmp(dispatcher, transport);
 		snmp.listen();
-		snmp.addCommandResponder(new CommandResponder() {
+		
+		dispatcher.addCommandResponder(new CommandResponder() {
 			@Override
 			public void processPdu(CommandResponderEvent event) {
 				System.out.println("LLego el dato:"+ event.toString());
@@ -77,9 +81,9 @@ public class SnmpCollector {
 		});
 	}
 
-	public void setDevice(Device newDevice) {
-		currentDevice = newDevice;
-		addr.setValue(currentDevice.getIp() + "/161");
+	public void setDevice(String ip) {
+		deviceIP = ip;
+		addr.setValue(deviceIP + "/161");
 	}
 
 	public void setParameter(Parameter newParameter) {
@@ -96,6 +100,8 @@ public class SnmpCollector {
 		long responseTime = System.currentTimeMillis();
 
 		try {
+			dispatcher.sendPdu(target, pdu, false);
+			/*
 			response = snmp.send(pdu, target);
 			responseTime = System.currentTimeMillis() - responseTime;
 			if (response != null) {
@@ -111,17 +117,17 @@ public class SnmpCollector {
 							plainTextResult = plainTextResult.substring(len + 1, plainTextResult.length());
 							plainTextResult = plainTextResult.trim() + "," + responseTime;
 						} else
-							TextFileLogger.printlnToFile(LOG_FILE, getCurrentDate() + "," + "BAD RESPONSE: " + rawResponse.toString() + " Request: " + pdu.toString() + " Device: " + currentDevice + " Time:" + responseTime);
+							TextFileLogger.printlnToFile(LOG_FILE, getCurrentDate() + "," + "BAD RESPONSE: " + rawResponse.toString() + " Request: " + pdu.toString() + " Device: " + deviceIP + " Time:" + responseTime);
 					} else
-						TextFileLogger.printlnToFile(LOG_FILE, getCurrentDate() + "," + "BAD RESPONSE: " + rawResponse.toString() + " Request: " + pdu.toString() + " Device: " + currentDevice + " Time:" + responseTime);
+						TextFileLogger.printlnToFile(LOG_FILE, getCurrentDate() + "," + "BAD RESPONSE: " + rawResponse.toString() + " Request: " + pdu.toString() + " Device: " + deviceIP + " Time:" + responseTime);
 				} else
-					TextFileLogger.printlnToFile(LOG_FILE, getCurrentDate() + "," + "TIMEOUT: Request: " + pdu.toString() + " Device: " + currentDevice + " Time:" + responseTime);
+					TextFileLogger.printlnToFile(LOG_FILE, getCurrentDate() + "," + "TIMEOUT: Request: " + pdu.toString() + " Device: " + deviceIP + " Time:" + responseTime);
 			} else
-				TextFileLogger.printlnToFile(LOG_FILE, getCurrentDate() + "," + "NETWORK ERROR: Request: " + pdu.toString() + " Device: " + currentDevice + " Time:" + responseTime);
+				TextFileLogger.printlnToFile(LOG_FILE, getCurrentDate() + "," + "NETWORK ERROR: Request: " + pdu.toString() + " Device: " + deviceIP + " Time:" + responseTime);
 
 			if (plainTextResult == null)
 				plainTextResult = "," + responseTime;
-
+*/
 		} catch (IOException e) {
 			e.printStackTrace();
 			plainTextResult = "," + (System.currentTimeMillis() - responseTime);
