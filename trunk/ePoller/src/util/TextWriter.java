@@ -2,20 +2,18 @@
  * @author Julian Peña - julian.orlando.pena@gmail.com
  */
 
-package storage;
+package util;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import pojos.Parameter;
 
-public class TextFileLogger {
-
-	private TextFileLogger() {
-	}
+public final class TextWriter {
 	
 	public static void initOutputFiles(HashMap<String, String> devices, ArrayList<Parameter> params) throws IOException {
 		File outputFile = new File("data");
@@ -54,5 +52,26 @@ public class TextFileLogger {
 			System.out.println("There was an error writing to the file: " + file);
 			e.printStackTrace();
 		}
+	}
+	
+	public static synchronized void printToFile(String file, String value) {
+		
+		try {
+			
+			if(!file.endsWith(".log"))
+				file="data/" +file+".csv";
+			
+			RandomAccessFile randomAccessFile = new RandomAccessFile(new File(file), "rw");
+			randomAccessFile.seek(randomAccessFile.length());
+			randomAccessFile.writeBytes(value);
+			randomAccessFile.close();
+		} catch (IOException e) {
+			System.out.println("There was an error writing to the file: " + file);
+			e.printStackTrace();
+		}
+	}
+	
+	public static String getCurrentDate() {
+		return new Timestamp(System.currentTimeMillis()).toString();
 	}
 }

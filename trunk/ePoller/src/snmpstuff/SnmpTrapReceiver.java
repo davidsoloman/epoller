@@ -19,7 +19,7 @@ import org.snmp4j.CommandResponderEvent;
 import org.snmp4j.mp.MPv1;
 import org.snmp4j.mp.MPv2c;
 
-import storage.TextFileLogger;
+import util.TextWriter;
 
 import java.net.UnknownHostException;
 import java.util.Properties;
@@ -32,9 +32,6 @@ public class SnmpTrapReceiver implements CommandResponder {
 	private Snmp snmp = null;
 	private Address listenAddress;
 	private ThreadPool threadPool;
-
-	public SnmpTrapReceiver() {
-	}
 
 	public void run() {
 		try {
@@ -69,7 +66,7 @@ public class SnmpTrapReceiver implements CommandResponder {
 	}
 
 	public void processPdu(CommandResponderEvent event) {
-		TextFileLogger.printlnToFile(TRAP_FILE, event.toString());
+		TextWriter.printlnToFile(TRAP_FILE, event.toString());
 		
 	}
 	
