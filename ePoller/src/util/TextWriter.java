@@ -7,7 +7,6 @@ package util;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -39,8 +38,8 @@ public final class TextWriter {
 	}
 
 	public static synchronized void printlnToFile(String file, String value) {
-		try {
-			
+		
+		try {	
 			if(!file.endsWith(".log"))
 				file="data/" +file+".csv";
 				
@@ -69,9 +68,5 @@ public final class TextWriter {
 			System.out.println("There was an error writing to the file: " + file);
 			e.printStackTrace();
 		}
-	}
-	
-	public static String getCurrentDate() {
-		return new Timestamp(System.currentTimeMillis()).toString();
 	}
 }

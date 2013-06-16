@@ -25,7 +25,6 @@ public class Launcher {
 			Properties properties = new Properties();
 			properties.load(new FileInputStream("configuration.properties"));
 
-			
 			System.out.println("Reading devices file ... ");
 			DeviceManager.loadDevices();
 			System.out.println(DeviceManager.devices.size() + " devices found.");

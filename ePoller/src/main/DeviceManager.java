@@ -1,6 +1,7 @@
 package main;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -15,9 +16,9 @@ public final class DeviceManager {
 	public static ArrayList<Parameter> parameters;
 
 	private static HashMap<String, Integer> lines;
-	
-	public DeviceManager() {
-		lines= new HashMap<String, Integer>();
+
+	static {
+		lines = new HashMap<String, Integer>();
 	}
 
 	public static void loadDevices() throws IOException {
@@ -29,22 +30,24 @@ public final class DeviceManager {
 	}
 
 	public static synchronized void writeData(String deviceIP, String data, long latency) {
-
+		
 		if (lines.get(deviceIP) == null) {
-			TextWriter.printToFile(DeviceManager.devices.get(deviceIP), TextWriter.getCurrentDate() + "," + data + "," + latency);
-			lines.put(deviceIP, 1);
+			lines.put(deviceIP, 0);
+			TextWriter.printToFile(devices.get(deviceIP), getCurrentDate() + "," + data + "," + latency);
 		} else {
 			int fetchedParams = lines.get(deviceIP);
-			if (fetchedParams < DeviceManager.parameters.size())
-			{
-				TextWriter.printToFile(DeviceManager.devices.get(deviceIP), data + "," + latency);
-				lines.put(deviceIP, lines.get(deviceIP) + 1);
-			}
-			else {
-				TextWriter.printlnToFile(DeviceManager.devices.get(deviceIP), data + "," + latency);
+			if (fetchedParams < parameters.size()-2) {
+				lines.put(deviceIP, fetchedParams + 1);
+				TextWriter.printToFile(devices.get(deviceIP), "," + data + "," + latency);
+			} else {
 				lines.remove(deviceIP);
+				TextWriter.printlnToFile(devices.get(deviceIP), "," + data + "," + latency);
 			}
 		}
+	}
+
+	public static String getCurrentDate() {
+		return new Timestamp(System.currentTimeMillis()).toString();
 	}
 
 }

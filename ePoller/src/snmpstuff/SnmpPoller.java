@@ -127,17 +127,17 @@ public class SnmpPoller implements CommandResponder {
 				if (result.contains("=")) {
 					int len = result.indexOf("=");
 					result = result.substring(len + 1, result.length());
-					result = result.trim() + "," + latency;
+					result = result.trim();
 				}
 			}
 
 			if (result == null)
-				result = "," + latency;
+				result = ",";
 			
 			requestIDs.remove(requestID);
 			
 			String deviceIP= event.getPeerAddress().toString();
-			deviceIP=deviceIP.substring(0, deviceIP.indexOf("/")-1);
+			deviceIP=deviceIP.substring(0, deviceIP.indexOf("/"));
 			
 			DeviceManager.writeData(deviceIP, result, latency);
 		}
