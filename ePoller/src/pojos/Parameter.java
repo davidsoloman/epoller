@@ -1,11 +1,6 @@
-/*
- * @author Julian Pe�a - julian.orlando.pena@gmail.com
- */
-
 package pojos;
 
 public class Parameter {
-
 	private String name, oid;
 
 	public Parameter() {
@@ -31,5 +26,4 @@ public class Parameter {
 	public String toString() {
 		return name + "," + oid;
 	}
-
 }

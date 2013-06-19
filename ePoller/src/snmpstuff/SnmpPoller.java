@@ -27,8 +27,6 @@ import org.snmp4j.transport.DefaultUdpTransportMapping;
 import org.snmp4j.util.MultiThreadedMessageDispatcher;
 import org.snmp4j.util.ThreadPool;
 
-import pojos.Parameter;
-
 public class SnmpPoller implements CommandResponder {
 
 	private Address addr;
@@ -44,7 +42,6 @@ public class SnmpPoller implements CommandResponder {
 	private MessageDispatcherImpl dispatcherImpl;
 
 	private String deviceIP;
-	private Parameter currentParameter;
 
 	private HashMap<Integer, Long> requestIDs;
 
@@ -74,6 +71,11 @@ public class SnmpPoller implements CommandResponder {
 
 		pdu = new PDU();
 		pdu.setType(PDU.GET);
+		
+		for(int i=0;i<DeviceManager.parameters.size();i++){
+			VariableBinding variable= new VariableBinding(new OID(DeviceManager.parameters.get(i).getOid()));
+			pdu.addOID(variable);
+		}
 
 		snmp = new Snmp(multiThreadedMessageDispatcher, transport);
 		snmp.listen();
@@ -86,15 +88,9 @@ public class SnmpPoller implements CommandResponder {
 		addr.setValue(deviceIP + "/161");
 	}
 
-	public void setParameter(Parameter newParameter) {
-		currentParameter = newParameter;
-	}
-
-	public void doSingleRequest() {
+	public void doRequest() {
 
 		try {
-			pdu.clear();
-			pdu.add(new VariableBinding(new OID(currentParameter.getOid())));
 			requestIDs.put(multiThreadedMessageDispatcher.sendPdu(target, pdu, false).getTransactionID(), System.currentTimeMillis());
 
 		} catch (IOException e) {
@@ -119,27 +115,21 @@ public class SnmpPoller implements CommandResponder {
 			latency = System.currentTimeMillis() - latency;
 			
 			PDU rawResponse = event.getPDU();
-			
-			String result = null;
 
-			if (rawResponse.getErrorStatusText().equalsIgnoreCase("success")) {
-				result = rawResponse.getVariableBindings().firstElement().toString();
-				if (result.contains("=")) {
-					int len = result.indexOf("=");
-					result = result.substring(len + 1, result.length());
-					result = result.trim();
-				}
+			if (rawResponse.getErrorStatusText().equalsIgnoreCase("success"))
+			{
+				String result = "";
+				
+				for(VariableBinding param: rawResponse.getVariableBindings())
+					result=result+param.getVariable()+",";
+				
+				String deviceIP= event.getPeerAddress().toString();
+				deviceIP=deviceIP.substring(0, deviceIP.indexOf("/"));
+				
+				DeviceManager.writeData(deviceIP, result, latency);
 			}
-
-			if (result == null)
-				result = ",";
 			
 			requestIDs.remove(requestID);
-			
-			String deviceIP= event.getPeerAddress().toString();
-			deviceIP=deviceIP.substring(0, deviceIP.indexOf("/"));
-			
-			DeviceManager.writeData(deviceIP, result, latency);
 		}
 	}
 }
