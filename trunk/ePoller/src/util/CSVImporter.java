@@ -1,7 +1,3 @@
-/*
- * @author Julian Peña - julian.orlando.pena@gmail.com
- */
-
 package util;
 
 import java.io.FileReader;
