@@ -5,18 +5,18 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.Random;
 
 import main.DeviceManager;
 
-import org.snmp4j.CommandResponder;
-import org.snmp4j.CommandResponderEvent;
 import org.snmp4j.CommunityTarget;
 import org.snmp4j.MessageDispatcherImpl;
 import org.snmp4j.PDU;
 import org.snmp4j.Snmp;
 import org.snmp4j.TransportMapping;
+import org.snmp4j.event.ResponseEvent;
+import org.snmp4j.event.ResponseListener;
 import org.snmp4j.mp.MPv2c;
-import org.snmp4j.mp.PduHandle;
 import org.snmp4j.mp.SnmpConstants;
 import org.snmp4j.smi.Address;
 import org.snmp4j.smi.OID;
@@ -27,7 +27,9 @@ import org.snmp4j.transport.DefaultUdpTransportMapping;
 import org.snmp4j.util.MultiThreadedMessageDispatcher;
 import org.snmp4j.util.ThreadPool;
 
-public class SnmpPoller implements CommandResponder {
+import util.TextWriter;
+
+public class SnmpPoller implements ResponseListener {
 
 	private Address addr;
 	private CommunityTarget target;
@@ -43,7 +45,8 @@ public class SnmpPoller implements CommandResponder {
 
 	private String deviceIP;
 
-	private HashMap<Integer, Long> requestIDs;
+	private HashMap<String, Long> requestIDs;
+	private Random random;
 
 	public SnmpPoller() throws FileNotFoundException, IOException {
 
@@ -53,7 +56,6 @@ public class SnmpPoller implements CommandResponder {
 		threadPool = ThreadPool.create("getsender", Integer.parseInt(properties.getProperty("pool_size")));
 
 		dispatcherImpl = new MessageDispatcherImpl();
-		dispatcherImpl.addCommandResponder(this);
 
 		multiThreadedMessageDispatcher = new MultiThreadedMessageDispatcher(threadPool, dispatcherImpl);
 		multiThreadedMessageDispatcher.addMessageProcessingModel(new MPv2c());
@@ -71,16 +73,17 @@ public class SnmpPoller implements CommandResponder {
 
 		pdu = new PDU();
 		pdu.setType(PDU.GET);
-		
-		for(int i=0;i<DeviceManager.parameters.size();i++){
-			VariableBinding variable= new VariableBinding(new OID(DeviceManager.parameters.get(i).getOid()));
+
+		for (int i = 0; i < DeviceManager.parameters.size(); i++) {
+			VariableBinding variable = new VariableBinding(new OID(DeviceManager.parameters.get(i).getOid()));
 			pdu.addOID(variable);
 		}
 
 		snmp = new Snmp(multiThreadedMessageDispatcher, transport);
 		snmp.listen();
 
-		requestIDs = new HashMap<Integer, Long>();
+		requestIDs = new HashMap<String, Long>();
+		random= new Random();
 	}
 
 	public void setDevice(String ip) {
@@ -91,45 +94,52 @@ public class SnmpPoller implements CommandResponder {
 	public void doRequest() {
 
 		try {
-			requestIDs.put(multiThreadedMessageDispatcher.sendPdu(target, pdu, false).getTransactionID(), System.currentTimeMillis());
-
+			String myRequestID = target.getAddress().toString() + "-" + random.nextInt();
+			snmp.send(pdu, target, myRequestID, this);
+			requestIDs.put(myRequestID, System.currentTimeMillis());
 		} catch (IOException e) {
 			e.printStackTrace();
+			//TODO Log to separate file
 		}
 	}
 
-	public void close() throws IOException {
-		snmp.close();
-	}
-
 	@Override
-	public void processPdu(CommandResponderEvent event) {
+	public void onResponse(ResponseEvent responseEvent) {
 
-		PduHandle pduHandle=event.getPduHandle();
-		int requestID = pduHandle.getTransactionID();
+		String requestID = (String) responseEvent.getUserObject();
 
 		Long latency = requestIDs.get(requestID);
 
 		if (latency != null) {
 
 			latency = System.currentTimeMillis() - latency;
-			
-			PDU rawResponse = event.getPDU();
 
-			if (rawResponse.getErrorStatusText().equalsIgnoreCase("success"))
-			{
-				String result = "";
+			PDU rawResponse = responseEvent.getResponse();
+
+			String result = "";
+
+			if (rawResponse != null) {
 				
-				for(VariableBinding param: rawResponse.getVariableBindings())
-					result=result+param.getVariable()+",";
-				
-				String deviceIP= event.getPeerAddress().toString();
-				deviceIP=deviceIP.substring(0, deviceIP.indexOf("/"));
-				
-				DeviceManager.writeData(deviceIP, result, latency);
-			}
+				if (rawResponse.getErrorStatus() == SnmpConstants.SNMP_ERROR_SUCCESS)
+					for (VariableBinding param : rawResponse.getVariableBindings())
+						result = result + param.getVariable() + ",";
+				else
+					// Bad response
+					TextWriter.printlnToFile("bad_responses.log", rawResponse.toString());
+			} else
+				// Timeout
+				for (int i = 0; i < DeviceManager.parameters.size(); i++)
+					result = result+",";
 			
+			String deviceIP = requestID.substring(0, requestID.indexOf("/"));
+
+			DeviceManager.writeData(deviceIP, result, latency);
+
 			requestIDs.remove(requestID);
 		}
+	}
+
+	public void close() throws IOException {
+		snmp.close();
 	}
 }
