@@ -19,6 +19,7 @@ import org.snmp4j.event.ResponseListener;
 import org.snmp4j.mp.MPv2c;
 import org.snmp4j.mp.SnmpConstants;
 import org.snmp4j.smi.Address;
+import org.snmp4j.smi.Integer32;
 import org.snmp4j.smi.OID;
 import org.snmp4j.smi.OctetString;
 import org.snmp4j.smi.UdpAddress;
@@ -94,9 +95,15 @@ public class SnmpPoller implements ResponseListener {
 	public void doRequest() {
 
 		try {
-			String myRequestID = deviceIP + "/" + random.nextInt();
+			
+			int pduRequestID= random.nextInt();
+			String myRequestID = deviceIP + "/" + pduRequestID;
+			
+			pdu.setRequestID(new Integer32(pduRequestID));
 			snmp.send(pdu, target, myRequestID, this);
+			
 			requestIDs.put(myRequestID, System.currentTimeMillis());
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 			//TODO Log to separate file
