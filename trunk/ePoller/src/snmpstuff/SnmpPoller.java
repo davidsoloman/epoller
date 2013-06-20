@@ -94,7 +94,7 @@ public class SnmpPoller implements ResponseListener {
 	public void doRequest() {
 
 		try {
-			String myRequestID = target.getAddress().toString() + "-" + random.nextInt();
+			String myRequestID = deviceIP + "/" + random.nextInt();
 			snmp.send(pdu, target, myRequestID, this);
 			requestIDs.put(myRequestID, System.currentTimeMillis());
 		} catch (IOException e) {
