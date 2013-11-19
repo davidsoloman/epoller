@@ -51,8 +51,7 @@ public class SnmpTrapReceiver implements CommandResponder {
 		listenAddress = GenericAddress.parse(System.getProperty("snmp4j.listenAddress", "udp:" + properties.getProperty("interface")+"/162"));
 
 		TransportMapping<UdpAddress> transport;
-		transport = new DefaultUdpTransportMapping((UdpAddress) listenAddress);
-		
+		transport = new DefaultUdpTransportMapping((UdpAddress) listenAddress);		
 
 		snmp = new Snmp(dispatcher, transport);
 		snmp.getMessageDispatcher().addMessageProcessingModel(new MPv1());
