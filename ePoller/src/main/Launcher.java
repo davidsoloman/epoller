@@ -8,6 +8,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import snmpstuff.SnmpPoller;
+import snmpstuff.SnmpTrapReceiver;
 import util.TextWriter;
 
 public class Launcher {
@@ -48,7 +49,16 @@ public class Launcher {
 					executor.scheduleAtFixedRate(new customTimerTask(ip), counter * request_interval, frequency, TimeUnit.MILLISECONDS);
 					counter++;
 				}
-
+				
+				System.out.println("Starting trap receiver ...");
+				
+				System.out.print("Reading traps file ... ");
+				DeviceManager.loadTraps();
+				System.out.println(DeviceManager.traps.size() + " traps found.");
+				
+				SnmpTrapReceiver multithreadedtrapreceiver = new SnmpTrapReceiver();
+				multithreadedtrapreceiver.run();
+				
 				System.out.println("ePoller started succesfully.");
 
 			}
@@ -57,12 +67,6 @@ public class Launcher {
 			e.printStackTrace();
 			System.exit(1);
 		}
-
-		/*
-		 * System.out.println("Starting trap receiver ..."); SnmpTrapReceiver
-		 * multithreadedtrapreceiver = new SnmpTrapReceiver();
-		 * multithreadedtrapreceiver.run(); System.out.println("Done.");
-		 */
 	}
 
 	private static class customTimerTask implements Runnable {

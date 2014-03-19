@@ -75,10 +75,8 @@ public class SnmpPoller implements ResponseListener {
 		pdu = new PDU();
 		pdu.setType(PDU.GET);
 
-		for (int i = 0; i < DeviceManager.parameters.size(); i++) {
-			VariableBinding variable = new VariableBinding(new OID(DeviceManager.parameters.get(i).getOid()));
-			pdu.addOID(variable);
-		}
+		for(String OID: DeviceManager.parameters.keySet())
+			pdu.addOID(new VariableBinding(new OID(OID+".1")));
 
 		snmp = new Snmp(multiThreadedMessageDispatcher, transport);
 		snmp.listen();
@@ -106,7 +104,6 @@ public class SnmpPoller implements ResponseListener {
 			
 		} catch (IOException e) {
 			e.printStackTrace();
-			//TODO Log to separate file
 		}
 	}
 

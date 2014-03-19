@@ -1,2 +1,2 @@
 #Delete or add the # character to deactivate or activate a parameter
-voltage,.1.3.6.1.4.1.29956.3.1.1.1.1.4.1
+1.3.6.1.4.1.29956.3.1.1.1.1.4,voltage
