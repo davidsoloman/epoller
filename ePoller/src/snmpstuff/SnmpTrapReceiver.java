@@ -73,15 +73,16 @@ public class SnmpTrapReceiver implements CommandResponder {
 		snmp.addCommandResponder(this);
 	}
 
-	private String trapSenderIP, trapSenderName;
-
 	public void processPdu(CommandResponderEvent event) {
+		
+		String trapSenderIP, trapSenderName;
 
 		trapSenderIP = event.getPeerAddress().toString();
 		trapSenderIP = trapSenderIP.substring(0, trapSenderIP.indexOf('/'));
 		trapSenderName = DeviceManager.getDeviceName(trapSenderIP);
 
 		boolean isValidTrap = false;
+		
 		String logMessage = DeviceManager.getCurrentDate() + " " + trapSenderIP + " " + trapSenderName;
 
 		Vector<? extends VariableBinding> oids = event.getPDU().getVariableBindings();
@@ -93,7 +94,6 @@ public class SnmpTrapReceiver implements CommandResponder {
 				variableBinding = iterator.next();
 
 				String oidCode = variableBinding.getOid().toString();
-				//System.out.println("OID Found: " + oidCode + " value: " + variableBinding.getVariable().toString());
 				
 				//is it a trap?
 				String oidName = DeviceManager.getTrapName(oidCode);
@@ -114,9 +114,7 @@ public class SnmpTrapReceiver implements CommandResponder {
 			}
 		}
 
-		if (isValidTrap) {
-			System.out.println(logMessage);
+		if (isValidTrap)
 			TextWriter.printlnToFile(traps_file, logMessage);
-		}
 	}
 }
