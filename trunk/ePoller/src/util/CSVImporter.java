@@ -2,15 +2,16 @@ package util;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import au.com.bytecode.opencsv.CSVReader;
 
 
 public final class CSVImporter {
 	
-	public static ConcurrentHashMap<String, String> loadDevices(String url) throws IOException {
-		ConcurrentHashMap<String, String> devices = new ConcurrentHashMap<String, String>();
+	public static HashMap<String, String> loadDevices(String url) throws IOException {
+		HashMap<String, String> devices = new HashMap<String, String>();
 		CSVReader reader = new CSVReader(new FileReader(url), ',', '\"', 0);
 		String[] nextLine;
 		while ((nextLine = reader.readNext()) != null) {
@@ -20,8 +21,8 @@ public final class CSVImporter {
 		return devices;
 	}
 	
-	public static ConcurrentHashMap<String, String> loadParameters(String url) throws IOException {
-		ConcurrentHashMap<String, String> parameters = new ConcurrentHashMap<String, String>();
+	public static LinkedHashMap<String, String> loadParameters(String url) throws IOException {
+		LinkedHashMap<String, String> parameters = new LinkedHashMap<String, String>();
 		CSVReader reader = new CSVReader(new FileReader(url), ',', '\"', 0);
 		String[] nextLine;
 		while ((nextLine = reader.readNext()) != null) {
@@ -33,8 +34,8 @@ public final class CSVImporter {
 		return parameters;
 	}
 	
-	public static ConcurrentHashMap<String, String> loadTraps(String url) throws IOException {
-		ConcurrentHashMap<String, String> traps = new ConcurrentHashMap<String, String>();
+	public static HashMap<String, String> loadTraps(String url) throws IOException {
+		HashMap<String, String> traps = new HashMap<String, String>();
 		CSVReader reader = new CSVReader(new FileReader(url), ',', '\"', 0);
 		String[] nextLine;
 		while ((nextLine = reader.readNext()) != null) {

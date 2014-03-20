@@ -3,11 +3,12 @@ package util;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public final class TextWriter {
 
-	public static void initOutputFiles(ConcurrentHashMap<String, String> devices, ConcurrentHashMap<String, String> params) throws IOException {
+	public static void initOutputFiles(HashMap<String, String> devices, LinkedHashMap<String, String> params) throws IOException {
 
 		File outputFile = new File("data");
 		RandomAccessFile emptyRandomAccessFile;

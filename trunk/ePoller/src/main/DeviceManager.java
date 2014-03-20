@@ -2,16 +2,17 @@ package main;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import util.CSVImporter;
 import util.TextWriter;
 
 public final class DeviceManager {
 
-	public static ConcurrentHashMap<String, String> devices;
-	public static ConcurrentHashMap<String, String> parameters;
-	public static ConcurrentHashMap<String, String> traps;
+	public static HashMap<String, String> devices;
+	public static LinkedHashMap<String, String> parameters;
+	public static HashMap<String, String> traps;
 
 	public static void loadDevices() throws IOException {
 		devices = CSVImporter.loadDevices("devices.csv");
@@ -38,6 +39,7 @@ public final class DeviceManager {
 	}
 	
 	public static synchronized void writeData(String deviceIP, String data, long latency) {
+		System.out.println(getCurrentDate() + "," + data + latency);
 		TextWriter.printlnToFile(devices.get(deviceIP), getCurrentDate() + "," + data + latency);
 	}
 	

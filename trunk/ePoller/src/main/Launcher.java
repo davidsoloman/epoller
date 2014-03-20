@@ -2,6 +2,7 @@ package main;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -16,6 +17,17 @@ public class Launcher {
 	public static void main(String[] args) {
 
 		try {
+			
+			
+			LinkedHashMap<String, String> testMap= new LinkedHashMap<String, String>();
+			testMap.put("1", "uno");
+			testMap.put("2", "dos");
+			testMap.put("3", "tres");
+			testMap.put("4", "cuatro");
+			testMap.put("5", "cinco");
+			
+			for(String valor: testMap.values())
+				System.out.println(valor);
 
 			Properties properties = new Properties();
 			properties.load(new FileInputStream("configuration.properties"));
